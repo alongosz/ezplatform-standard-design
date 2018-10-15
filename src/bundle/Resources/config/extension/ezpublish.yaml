@@ -1,0 +1,9 @@
+system:
+    default:
+        pagelayout: '@ezdesign/pagelayout.html.twig'
+
+        field_templates:
+            - { template: "@ezdesign/content_fields.html.twig", priority: 0 }
+
+        fielddefinition_settings_templates:
+            - { template: "@ezdesign/fielddefinition_settings.html.twig", priority: 0 }

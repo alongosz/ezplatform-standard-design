@@ -47,7 +47,8 @@ class EzPlatformStandardDesignExtension extends Extension implements PrependExte
      */
     public function prepend(ContainerBuilder $container)
     {
-        $this->prependEzDesignSettings($container);
+        $this->prependExtensionSettings('ezdesign', $container);
+        $this->prependExtensionSettings('ezpublish', $container);
     }
 
     /**
@@ -55,11 +56,11 @@ class EzPlatformStandardDesignExtension extends Extension implements PrependExte
      *
      * @param \Symfony\Component\DependencyInjection\ContainerBuilder $containerBuilder
      */
-    private function prependEzDesignSettings(ContainerBuilder $containerBuilder)
+    private function prependExtensionSettings(string $extensionName, ContainerBuilder $containerBuilder)
     {
-        $configFile = __DIR__ . '/../Resources/config/extension/ezdesign.yaml';
+        $configFile = __DIR__ . "/../Resources/config/extension/{$extensionName}.yaml";
         $config = Yaml::parseFile($configFile);
-        $containerBuilder->prependExtensionConfig('ezdesign', $config);
+        $containerBuilder->prependExtensionConfig($extensionName, $config);
         $containerBuilder->addResource(new FileResource($configFile));
     }
 }
