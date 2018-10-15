@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace EzSystems\Tests\EzPlatformStandardDesignBundle\DependencyInjection\Compiler;
 
 use EzSystems\EzPlatformStandardDesignBundle\DependencyInjection\Compiler\EzKernelOverridePass;
+use EzSystems\EzPlatformStandardDesignBundle\DependencyInjection\EzPlatformStandardDesignExtension;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractCompilerPassTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -65,32 +66,37 @@ class EzKernelOverridePassTest extends AbstractCompilerPassTestCase
         );
     }
 
-    public function testKernelTemplateNamesHaveEzDesignPrefix()
+    /**
+     * Test that default views parameters are overridden and prefixed with ezdesign Twig namespace.
+     */
+    public function testKernelDefaultViewTemplatesHaveEzDesignPrefix()
     {
+        $this->container->setParameter(
+            EzPlatformStandardDesignExtension::OVERRIDE_KERNEL_TEMPLATES_PARAM_NAME,
+            true
+        );
         $this->container->compile();
 
         $parameters = $this->container->getParameterBag()->all();
         foreach ($parameters as $parameterId => $parameterValue) {
-            $templates = [];
-
-            if (is_string($parameterValue)) {
-                $templates[] = $parameterValue;
-            } elseif (is_array($parameterValue)) {
-                foreach ($parameterValue as $nestedValues) {
-                    if (!isset($nestedValues['template'])) {
-                        continue;
-                    }
-                    $templates[] = $nestedValues['template'];
-                }
+            // check Twig templates only
+            if (!is_string($parameterValue) || !$this->endsWith($parameterValue, '.html.twig')) {
+                continue;
             }
-
-            foreach ($templates as $templatePath) {
-                self::assertStringStartsWith(
-                    '@ezdesign/',
-                    $templatePath,
-                    "Parameter '{$parameterId}' template(s) doesn't start with '@ezdesign' prefix"
-                );
-            }
+            self::assertStringStartsWith('@ezdesign/', $parameterValue, "Parameter '{$parameterId}' doesn't start with @ezdesign/ prefix");
         }
+    }
+
+    /**
+     * Check if the given string ends with the given suffix.
+     *
+     * @param string $string
+     * @param string $suffix
+     *
+     * @return bool
+     */
+    private function endsWith(string $string, string $suffix): bool
+    {
+        return $suffix === substr($string, 0 - \strlen($suffix));
     }
 }

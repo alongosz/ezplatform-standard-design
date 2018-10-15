@@ -20,6 +20,9 @@ class EzPlatformStandardDesignExtensionTest extends AbstractExtensionTestCase
         ];
     }
 
+    /**
+     * Test that Extension prepends eZ Design Engine configuration.
+     */
     public function testExtensionPrependsStandardDesignSettings()
     {
         $this->load();
@@ -32,5 +35,24 @@ class EzPlatformStandardDesignExtensionTest extends AbstractExtensionTestCase
             ],
             $this->container->getExtensionConfig('ezdesign')
         );
+    }
+
+    /**
+     * Test that Extension prepends SA-aware configuration for layout-related templates.
+     */
+    public function testSiteAccessAwareTemplatesHaveEzDesignPrefix()
+    {
+        $this->load();
+        $config = $this->container->getExtensionConfig('ezpublish')[0];
+
+        self::assertStringStartsWith('@ezdesign/', $config['system']['default']['pagelayout']);
+        foreach (['field_templates', 'fielddefinition_settings_templates'] as $keyName) {
+            foreach ($config['system']['default'][$keyName] as $templateSettings) {
+                self::assertStringStartsWith(
+                    '@ezdesign/',
+                    $templateSettings['template']
+                );
+            }
+        }
     }
 }
